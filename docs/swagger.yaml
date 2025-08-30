@@ -1,0 +1,112 @@
+basePath: /
+definitions:
+  model.KidsGiftBox:
+    properties:
+      contains:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      images:
+        items:
+          type: string
+        type: array
+      notes:
+        type: string
+      price:
+        type: number
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for managing kids gift boxes
+  title: Modakk API
+  version: "1.0"
+paths:
+  /giftboxes:
+    get:
+      description: Get all kids gift boxes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.KidsGiftBox'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all gift boxes
+      tags:
+      - giftboxes
+    post:
+      consumes:
+      - application/json
+      description: Create a new kids gift box
+      parameters:
+      - description: Gift Box data
+        in: body
+        name: giftbox
+        required: true
+        schema:
+          $ref: '#/definitions/model.KidsGiftBox'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.KidsGiftBox'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new gift box
+      tags:
+      - giftboxes
+  /giftboxes/{id}:
+    get:
+      description: Get a kids gift box by its ID
+      parameters:
+      - description: Gift Box ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.KidsGiftBox'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get gift box by ID
+      tags:
+      - giftboxes
+swagger: "2.0"
