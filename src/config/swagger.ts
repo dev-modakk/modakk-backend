@@ -5,7 +5,7 @@ const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Modakk Kids Gift Boxes API',
+      title: 'Modakk API',
       version: '1.0.0',
       description: 'A Node.js API for Kids Gift Boxes with PostgreSQL, TypeScript, and Swagger documentation',
       contact: {
@@ -114,5 +114,5 @@ export const specs = swaggerJsdoc(options);
 
 export const swaggerUiOptions: SwaggerOptions = {
   customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'Modakk Kids Gift Boxes API Documentation'
+  customSiteTitle: 'Modakk API Documentation'
 };
