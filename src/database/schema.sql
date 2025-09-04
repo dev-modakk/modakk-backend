@@ -4,15 +4,6 @@
 -- Use the database
 -- \c your_database_name;
 
--- Create users table
-CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-);
-
 -- Create kids_gift_boxes table
 CREATE TABLE IF NOT EXISTS kids_gift_boxes (
     id SERIAL PRIMARY KEY,
@@ -38,12 +29,8 @@ INSERT INTO kids_gift_boxes (title, price, box_contains, reviews_avg, descriptio
     'Perfect gift box for kids who love soft, cuddly companions! This amazing Squishmallow gift box brings joy and sweetness together. The 12-inch Squishmallow plushie is super soft and perfect for snuggles, while the sweet treats add an extra element of fun. Great for birthdays, holidays, or any special occasion!'
 );
 
--- Insert sample users (optional)
-INSERT INTO users (name, email) VALUES 
-('John Doe', 'john@example.com'),
-('Jane Smith', 'jane@example.com');
+
 
 -- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_gift_boxes_reviews ON kids_gift_boxes(reviews_avg);
 CREATE INDEX IF NOT EXISTS idx_gift_boxes_created_at ON kids_gift_boxes(created_at);
