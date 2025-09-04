@@ -6,18 +6,19 @@
 
 -- Create kids_gift_boxes table
 CREATE TABLE IF NOT EXISTS kids_gift_boxes (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title VARCHAR(200) NOT NULL,
     price VARCHAR(20) NOT NULL,
     box_contains TEXT NOT NULL,
     reviews_avg DECIMAL(2,1) CHECK (reviews_avg >= 1.0 AND reviews_avg <= 5.0),
     description TEXT NOT NULL,
+    images TEXT[] DEFAULT '{}',
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Insert sample data for kids_gift_boxes
-INSERT INTO kids_gift_boxes (title, price, box_contains, reviews_avg, description) VALUES 
+
+INSERT INTO kids_gift_boxes (title, price, box_contains, reviews_avg, description, images) VALUES 
 (
     'Squishmallow Fun', 
     '$39.95', 
@@ -26,11 +27,11 @@ INSERT INTO kids_gift_boxes (title, price, box_contains, reviews_avg, descriptio
 1x Kit Kat Mini
 2x Mini Mentos Fruit lolly rolls', 
     4.5, 
-    'Perfect gift box for kids who love soft, cuddly companions! This amazing Squishmallow gift box brings joy and sweetness together. The 12-inch Squishmallow plushie is super soft and perfect for snuggles, while the sweet treats add an extra element of fun. Great for birthdays, holidays, or any special occasion!'
+    'Perfect gift box for kids who love soft, cuddly companions! This amazing Squishmallow gift box brings joy and sweetness together. The 12-inch Squishmallow plushie is super soft and perfect for snuggles, while the sweet treats add an extra element of fun. Great for birthdays, holidays, or any special occasion!',
+    ARRAY['https://example.com/images/squishmallow-box-1.jpg', 'https://example.com/images/squishmallow-box-2.jpg', 'https://example.com/images/squishmallow-contents.jpg']
 );
 
 
-
--- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_gift_boxes_reviews ON kids_gift_boxes(reviews_avg);
 CREATE INDEX IF NOT EXISTS idx_gift_boxes_created_at ON kids_gift_boxes(created_at);
+CREATE INDEX IF NOT EXISTS idx_gift_boxes_images ON kids_gift_boxes USING GIN(images); 

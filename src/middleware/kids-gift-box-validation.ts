@@ -21,6 +21,7 @@ const createKidsGiftBoxSchema = z.object({
     .string()
     .min(10, 'Description must be at least 10 characters long')
     .max(2000, 'Description must not exceed 2000 characters'),
+  images: z.array(z.string().url('Invalid image URL')).min(1, 'At least one image is required'),
 });
 
 const updateKidsGiftBoxSchema = z
@@ -49,6 +50,7 @@ const updateKidsGiftBoxSchema = z
       .min(10, 'Description must be at least 10 characters long')
       .max(2000, 'Description must not exceed 2000 characters')
       .optional(),
+    images: z.array(z.string().url('Invalid image URL')).min(1, 'At least one image is required'),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: 'At least one field must be provided',
@@ -87,21 +89,10 @@ export const validateUpdateKidsGiftBox = (req: Request, res: Response, next: Nex
 };
 
 export const validateKidsGiftBoxId = (req: Request, res: Response, next: NextFunction) => {
-  const idSchema = z.string().transform((val, ctx) => {
-    const parsed = parseInt(val);
-    if (isNaN(parsed) || parsed <= 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Invalid gift box ID',
-      });
-      return z.NEVER;
-    }
-    return parsed;
-  });
+  const idSchema = z.string().uuid('Invalid UUID format for gift box ID');
 
   try {
-    const id = idSchema.parse(req.params.id);
-    req.params.id = id.toString();
+    idSchema.parse(req.params.id);
     next();
   } catch (error) {
     if (error instanceof z.ZodError) {

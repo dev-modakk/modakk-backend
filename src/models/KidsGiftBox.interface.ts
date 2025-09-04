@@ -1,5 +1,6 @@
 export interface KidsGiftBox {
-  id?: number;
+  id?: string;
+  images: string[];
   title: string;
   price: string;
   box_contains: string;
@@ -10,6 +11,7 @@ export interface KidsGiftBox {
 }
 
 export interface CreateKidsGiftBoxInput {
+  images: string[];
   title: string;
   price: string;
   box_contains: string;
@@ -23,4 +25,5 @@ export interface UpdateKidsGiftBoxInput {
   box_contains?: string;
   reviews_avg?: number;
   description?: string;
+  images: string[]
 }

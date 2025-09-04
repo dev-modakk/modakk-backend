@@ -5,7 +5,13 @@ import {
   validateUpdateKidsGiftBox,
   validateKidsGiftBoxId,
 } from '../middleware';
-import { createKidsGiftBox, getAllKidsGiftBoxes, getKidsGiftBoxById } from '../controllers';
+import {
+  createKidsGiftBox,
+  getAllKidsGiftBoxes,
+  getKidsGiftBoxById,
+  updateKidsGiftBox,
+  deleteKidsGiftBox,
+} from '../controllers';
 
 const router = express.Router();
 
@@ -43,9 +49,10 @@ router.get('/', getAllKidsGiftBoxes);
  *       - in: path
  *         name: id
  *         required: true
+ *         description: The gift box UUID
  *         schema:
- *           type: integer
- *         description: The gift box ID
+ *           type: string
+ *           format: uuid
  *     responses:
  *       200:
  *         description: Gift box found
@@ -94,7 +101,7 @@ router.get('/:id', validateKidsGiftBoxId, getKidsGiftBoxById);
  *                 example: "Squishmallow Fun"
  *               price:
  *                 type: string
- *                 pattern: '^\$\d+\.\d{2}$'
+ *                 pattern: '^\\$\\d+\\.\\d{2}$'
  *                 example: "$39.95"
  *               box_contains:
  *                 type: string
@@ -143,9 +150,10 @@ router.post('/', validateCreateKidsGiftBox, createKidsGiftBox);
  *       - in: path
  *         name: id
  *         required: true
+ *         description: The gift box UUID
  *         schema:
- *           type: integer
- *         description: The gift box ID
+ *           type: string
+ *           format: uuid
  *     requestBody:
  *       required: true
  *       content:
@@ -160,7 +168,7 @@ router.post('/', validateCreateKidsGiftBox, createKidsGiftBox);
  *                 example: "Squishmallow Fun"
  *               price:
  *                 type: string
- *                 pattern: '^\$\d+\.\d{2}$'
+ *                 pattern: '^\\$\\d+\\.\\d{2}$'
  *                 example: "$39.95"
  *               box_contains:
  *                 type: string
@@ -204,7 +212,7 @@ router.post('/', validateCreateKidsGiftBox, createKidsGiftBox);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', validateKidsGiftBoxId, validateUpdateKidsGiftBox, createKidsGiftBox);
+router.put('/:id', validateKidsGiftBoxId, validateUpdateKidsGiftBox, updateKidsGiftBox);
 
 /**
  * @swagger
@@ -216,9 +224,10 @@ router.put('/:id', validateKidsGiftBoxId, validateUpdateKidsGiftBox, createKidsG
  *       - in: path
  *         name: id
  *         required: true
+ *         description: The gift box UUID
  *         schema:
- *           type: integer
- *         description: The gift box ID
+ *           type: string
+ *           format: uuid
  *     responses:
  *       204:
  *         description: Gift box deleted successfully
@@ -235,6 +244,6 @@ router.put('/:id', validateKidsGiftBoxId, validateUpdateKidsGiftBox, createKidsG
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', validateKidsGiftBoxId, createKidsGiftBox);
+router.delete('/:id', validateKidsGiftBoxId, deleteKidsGiftBox);
 
 export default router;

@@ -19,7 +19,7 @@ export const getAllKidsGiftBoxes = async (req: Request, res: Response): Promise<
 
 export const getKidsGiftBoxById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const giftBox = await giftBoxService.getKidsGiftBoxById(id);
 
     if (!giftBox) {
@@ -54,9 +54,9 @@ export const createKidsGiftBox = async (req: Request, res: Response): Promise<vo
   }
 };
 
-export const updateGiftBox = async (req: Request, res: Response): Promise<void> => {
+export const updateKidsGiftBox = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const updateData = req.body;
 
     const giftBox = await giftBoxService.updateKidsGiftBox(id, updateData);
@@ -79,9 +79,9 @@ export const updateGiftBox = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export const deleteGiftBox = async (req: Request, res: Response): Promise<void> => {
+export const deleteKidsGiftBox = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const deleted = await giftBoxService.deleteKidsGiftBox(id);
 
     if (!deleted) {

@@ -26,9 +26,10 @@ const options: swaggerJsdoc.Options = {
           required: ['title', 'price', 'box_contains', 'reviews_avg', 'description'],
           properties: {
             id: {
-              type: 'integer',
-              description: 'The auto-generated id of the kids gift box',
-              example: 1
+              type: 'string',
+              format: 'uuid',
+              description: 'The auto-generated UUID of the kids gift box',
+              example: '123e4567-e89b-12d3-a456-426614174000'
             },
             title: {
               type: 'string',
@@ -58,6 +59,20 @@ const options: swaggerJsdoc.Options = {
               type: 'string',
               description: 'Detailed description of the gift box',
               example: 'Perfect gift box for kids who love soft, cuddly companions! This amazing Squishmallow gift box brings joy and sweetness together.'
+            },
+            images: {
+              type: 'array',
+              items: {
+                type: 'string',
+                format: 'uri'
+              },
+              maxItems: 10,
+              description: 'Array of product image URLs (maximum 10)',
+              example: [
+                'https://example.com/images/squishmallow-box-1.jpg',
+                'https://example.com/images/squishmallow-box-2.jpg',
+                'https://example.com/images/squishmallow-contents.jpg'
+              ]
             },
             created_at: {
               type: 'string',

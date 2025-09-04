@@ -1,5 +1,4 @@
 import { pool } from '../config/database';
-
 import { QueryResult } from 'pg';
 import { CreateKidsGiftBoxInput, KidsGiftBox, UpdateKidsGiftBoxInput } from '../models';
 
@@ -10,7 +9,7 @@ export class KidsGiftBoxService {
     return result.rows;
   }
 
-  async getKidsGiftBoxById(id: number): Promise<KidsGiftBox | null> {
+  async getKidsGiftBoxById(id: string): Promise<KidsGiftBox | null> {
     const query = 'SELECT * FROM kids_gift_boxes WHERE id = $1';
     const result: QueryResult<KidsGiftBox> = await pool.query(query, [id]);
     return result.rows[0] || null;
@@ -18,8 +17,8 @@ export class KidsGiftBoxService {
 
   async createKidsGiftBox(giftBoxData: CreateKidsGiftBoxInput): Promise<KidsGiftBox> {
     const query = `
-      INSERT INTO kids_gift_boxes (title, price, box_contains, reviews_avg, description, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+      INSERT INTO kids_gift_boxes (title, price, box_contains, reviews_avg, description, images, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
       RETURNING *
     `;
     const result: QueryResult<KidsGiftBox> = await pool.query(query, [
@@ -28,65 +27,50 @@ export class KidsGiftBoxService {
       giftBoxData.box_contains,
       giftBoxData.reviews_avg,
       giftBoxData.description,
+      giftBoxData.images
     ]);
     return result.rows[0];
   }
 
-  async updateKidsGiftBox(id: number, giftBoxData: UpdateKidsGiftBoxInput): Promise<KidsGiftBox | null> {
-    const fields = [];
-    const values = [];
-    let paramCount = 1;
+  async updateKidsGiftBox(id: string, giftBoxData: UpdateKidsGiftBoxInput): Promise<KidsGiftBox | null> {
+    const fieldMappings = {
+      title: 'title',
+      price: 'price',
+      box_contains: 'box_contains',
+      reviews_avg: 'reviews_avg',
+      description: 'description',
+      images: 'images'
+    };
 
-    if (giftBoxData.title !== undefined) {
-      fields.push(`title = $${paramCount}`);
-      values.push(giftBoxData.title);
-      paramCount++;
+    const updates: string[] = [];
+    const values: any[] = [];
+
+    Object.entries(giftBoxData).forEach(([key, value]) => {
+      if (value !== undefined && fieldMappings[key as keyof typeof fieldMappings]) {
+        updates.push(`${fieldMappings[key as keyof typeof fieldMappings]} = $${updates.length + 1}`);
+        values.push(value);
+      }
+    });
+
+    if (updates.length === 0) {
+      return this.getKidsGiftBoxById(id);
     }
 
-    if (giftBoxData.price !== undefined) {
-      fields.push(`price = $${paramCount}`);
-      values.push(giftBoxData.price);
-      paramCount++;
-    }
-
-    if (giftBoxData.box_contains !== undefined) {
-      fields.push(`box_contains = $${paramCount}`);
-      values.push(giftBoxData.box_contains);
-      paramCount++;
-    }
-
-    if (giftBoxData.reviews_avg !== undefined) {
-      fields.push(`reviews_avg = $${paramCount}`);
-      values.push(giftBoxData.reviews_avg);
-      paramCount++;
-    }
-
-    if (giftBoxData.description !== undefined) {
-      fields.push(`description = $${paramCount}`);
-      values.push(giftBoxData.description);
-      paramCount++;
-    }
-
-    if (fields.length === 0) {
-      const existingGiftBox = await this.getKidsGiftBoxById(id);
-      return existingGiftBox;
-    }
-
-    fields.push(`updated_at = NOW()`);
+    updates.push('updated_at = NOW()');
     values.push(id);
 
     const query = `
-      UPDATE kids_gift_boxes 
-      SET ${fields.join(', ')}
-      WHERE id = $${paramCount}
-      RETURNING *
-    `;
+    UPDATE kids_gift_boxes 
+    SET ${updates.join(', ')}
+    WHERE id = $${values.length}
+    RETURNING *
+  `;
 
     const result: QueryResult<KidsGiftBox> = await pool.query(query, values);
     return result.rows[0] || null;
   }
 
-  async deleteKidsGiftBox(id: number): Promise<boolean> {
+  async deleteKidsGiftBox(id: string): Promise<boolean> {
     const query = 'DELETE FROM kids_gift_boxes WHERE id = $1 RETURNING id';
     const result = await pool.query(query, [id]);
     return result.rowCount !== null && result.rowCount > 0;
