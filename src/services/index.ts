@@ -1,1 +1,1 @@
-export * from "./kids-gift-box.service"
+export * from "./id-service"

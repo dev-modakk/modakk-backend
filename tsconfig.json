@@ -1,29 +1,35 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
+    "target": "ES2020", // modern JS output
+    "module": "CommonJS", // works best for Node + ts-node-dev
+    "moduleResolution": "Node", // how modules are resolved
+    "outDir": "dist", // compiled output folder
+    "rootDir": "src", // your source folder
+    /* Strictness */
+    "strict": true, // enable all strict checks
+    "esModuleInterop": true, // allow import express from "express"
+    "skipLibCheck": true, // skip type checks in node_modules
+    /* Types */
+    "types": [
+      "node"
+    ], // pull in Node.js types
     "lib": [
       "ES2020"
-    ],
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    ], // no DOM types, only ES2020 APIs
+    /* Source Maps (optional for debugging) */
+    "sourceMap": true
+  },
+  "baseUrl": "src", // <-- root for non-relative imports
+  "paths": {
+    "@/*": [
+      "*"
+    ] // <-- alias "@" to src/
   },
   "include": [
-    "src/**/*"
-  ],
+    "src"
+  ], // compile everything in src/
   "exclude": [
     "node_modules",
-    "dist",
-    "**/*.test.ts"
-  ]
+    "dist"
+  ] // ignore build + deps
 }
