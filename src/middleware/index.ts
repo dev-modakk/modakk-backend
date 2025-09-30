@@ -1,1 +1,1 @@
-export * from "./kids-gift-box-validation"
+export * from "./upload-carousel-images.middleware"
