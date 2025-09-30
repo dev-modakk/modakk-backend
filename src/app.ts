@@ -5,7 +5,7 @@ import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger/spec";
 import configCarouselRoutes from "./routes/config-carousel.routes";
 import kidsGiftBoxRoutes from "./routes/kids-gift-boxes.route";
-
+import kidsGiftBoxesBrowse from "./routes/kids-gift-boxes-browser.route"
 
 dotenv.config();
 
@@ -18,6 +18,7 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/v1/config/carousel", configCarouselRoutes);
+app.use('/api/v1/kidsgiftboxes', kidsGiftBoxesBrowse);
 app.use("/api/v1/kidsgiftboxes", kidsGiftBoxRoutes);
 
 

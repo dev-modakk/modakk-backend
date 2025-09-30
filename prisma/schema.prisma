@@ -15,7 +15,8 @@ model ConfigCarousel {
 }
 
 model KidsGiftBox {
-  id           String   @id @db.VarChar(20) // Changed to String for MDK format
+  id           String   @id @default(cuid()) // CUID primary key (more reliable than uuid())
+  displayId    String?  @unique @db.VarChar(20) // Optional human-readable ID like MDK-ABC123
   name         String   @db.VarChar(200)
   description  String
   priceInINR   Decimal  @db.Decimal(10,2)   
@@ -32,4 +33,5 @@ model KidsGiftBox {
   
   @@index([category])
   @@index([createdAt])
+  @@index([displayId])
 }

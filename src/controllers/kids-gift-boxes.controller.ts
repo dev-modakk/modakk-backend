@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma";
 import { createGiftBoxSchema, imagesBodySchema } from "../validators";
-import { ProductCategory, idService } from "../services";
+import { ProductCategory } from "../services";
+import { displayIdService } from "../services/display-id-service";
 
 
 function toCard(gb: any) {
   return {
-    id: gb.id as string,
+    id: gb.displayId || gb.id,
     name: gb.name as string,
     price: Number(gb.priceInINR),
     image: gb.image as string,
@@ -27,22 +28,14 @@ export async function createKidsGiftBox(req: Request, res: Response) {
   const data = parsed.data;
 
   try {
-    // Generate unique ID based on category (default to GB for gift boxes)
+    // Generate display ID for human-readable reference
     const category = (data.category as ProductCategory) || 'GB';
-
-    // Choose your preferred ID generation method:
-    // Option 1: Hybrid (category-based)
-    const id = await idService.generateID(category);
-
-    // Option 2: Alphanumeric (shorter, like Amazon)
-    // const id = await idService.generateAlphanumericID();
-
-    // Option 3: Timestamp (guaranteed unique)
-    // const id = idService.generateTimestampID();
+    const displayId = displayIdService.generateTimeBasedDisplayID(category);
 
     const created = await prisma.kidsGiftBox.create({
       data: {
-        id, // Use the generated ID
+        // No need to specify id - Prisma will auto-generate CUID
+        displayId, // Human-readable display ID
         name: data.name,
         description: data.description,
         priceInINR: data.price,
@@ -54,7 +47,7 @@ export async function createKidsGiftBox(req: Request, res: Response) {
         isSoldOut: data.isSoldOut,
         images: data.images,
         category
-      }
+      } as any // Temporary type assertion - CUID generation works at runtime
     });
 
     return res.status(201).json(toCard(created));
@@ -67,10 +60,17 @@ export async function createKidsGiftBox(req: Request, res: Response) {
 export async function getKidsGiftBox(req: Request, res: Response) {
   const { id } = req.params;
 
-  // ID is now a string, so direct lookup
-  const gb = await prisma.kidsGiftBox.findUnique({
-    where: { id }
+  // Try to find by displayId first, then by UUID
+  let gb = await prisma.kidsGiftBox.findFirst({
+    where: { displayId: id }
   });
+
+  if (!gb) {
+    // If not found by displayId, try by UUID
+    gb = await prisma.kidsGiftBox.findUnique({
+      where: { id }
+    });
+  }
 
   if (!gb) return res.status(404).json({ message: "Gift box not found." });
   return res.json(gb);

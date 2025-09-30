@@ -6,7 +6,7 @@ import { Options as CsvOptions } from "csv-parser";
 import * as path from "path";
 import csv from "csv-parser";
 import prisma from "../lib/prisma";
-import { idService } from "../services/id-service";
+import { displayIdService } from "../services/display-id-service";
 import { z } from "zod";
 import { Readable } from "stream";
 
@@ -21,7 +21,25 @@ const bulkImportRowSchema = z.object({
       return n;
     })
   ]),
-  image: z.string().url(),
+  image: z.any().transform(val => {
+    console.log('Transforming image value:', val, 'type:', typeof val);
+    if (typeof val === 'string') {
+      return val.trim();
+    }
+    if (val && typeof val === 'object' && typeof val.url === 'string') return val.url.trim();
+    return '';
+  }).refine(val => {
+    if (val === '') return false; // Don't allow empty images
+    // Accept any valid URL format (including ImageKit URLs)
+    try {
+      new URL(val);
+      return true;
+    } catch {
+      return false;
+    }
+  }, {
+    message: 'image must be a valid URL',
+  }),
   badge: z.string().max(50).optional().nullable(),
   rating: z.union([
     z.number().min(0).max(5),
@@ -162,17 +180,27 @@ export async function bulkImportKidsGiftBoxes(req: Request, res: Response) {
           // Validate row data
           const validated = bulkImportRowSchema.parse(normalizedRow);
 
-          // Generate ID
-          const id = await idService.generateID(validated.category as any);
+          // Generate display ID for human-readable reference
+          const displayId = displayIdService.generateTimeBasedDisplayID(validated.category as any);
 
-          // Create record
+          // Ensure image is always a string URL
+          let imageUrl = validated.image;
+          if (imageUrl && typeof imageUrl === 'object') {
+            const maybeObj = imageUrl as any;
+            if ('url' in maybeObj && typeof maybeObj.url === 'string') {
+              imageUrl = maybeObj.url;
+            } else {
+              imageUrl = '';
+            }
+          }
+
           const created = await prisma.kidsGiftBox.create({
             data: {
-              id,
+              displayId, // Human-readable display ID
               name: validated.name,
               description: validated.description,
               priceInINR: validated.price,
-              image: validated.image,
+              image: imageUrl,
               badge: validated.badge || null,
               rating: validated.rating,
               reviews: validated.reviews || 0,
@@ -180,7 +208,7 @@ export async function bulkImportKidsGiftBoxes(req: Request, res: Response) {
               isSoldOut: validated.isSoldOut || false,
               images: validated.images || [],
               category: validated.category || 'GB'
-            }
+            } as any // Temporary type assertion - CUID generation works at runtime  
           });
 
           result.successCount++;
@@ -286,8 +314,22 @@ async function parseExcel(buffer: Buffer): Promise<any[]> {
       // Normalize common cell value shapes
       if (value instanceof Date) {
         rowData[header] = value.toISOString();
-      } else if (value && typeof value === 'object' && 'result' in value) {
-        rowData[header] = (value as any).result;
+      } else if (value && typeof value === 'object') {
+        // Handle ExcelJS hyperlink objects and other object types
+        if ('result' in value) {
+          rowData[header] = (value as any).result;
+        } else if ('text' in value && 'hyperlink' in value) {
+          // ExcelJS hyperlink object: use the hyperlink URL
+          rowData[header] = String(value.hyperlink).trim();
+        } else if ('hyperlink' in value) {
+          rowData[header] = String(value.hyperlink).trim();
+        } else if ('text' in value) {
+          rowData[header] = String(value.text).trim();
+        } else {
+          // Fallback: try to extract any string property or stringify
+          const stringValue = value.toString();
+          rowData[header] = stringValue === '[object Object]' ? '' : stringValue;
+        }
       } else if (value != null) {
         rowData[header] = String(value).trim();
       } else {

@@ -165,6 +165,38 @@ const spec = {
         tags: ["kidsgiftboxes"],
         parameters: [
           {
+            name: "page",
+            in: "query",
+            required: false,
+            schema: {
+              type: "integer",
+              default: 1,
+              minimum: 1
+            },
+            description: "Page number for pagination"
+          },
+          {
+            name: "pageSize",
+            in: "query",
+            required: false,
+            schema: {
+              type: "integer",
+              default: 12,
+              minimum: 1,
+              maximum: 60
+            },
+            description: "Number of items per page"
+          },
+          {
+            name: "q",
+            in: "query",
+            required: false,
+            schema: {
+              type: "string"
+            },
+            description: "Search query for filtering by name or description"
+          },
+          {
             name: "category",
             in: "query",
             required: false,
@@ -173,6 +205,17 @@ const spec = {
               enum: ["GB", "TY", "BK", "GM", "CL", "AC"]
             },
             description: "Filter by category (GB=Gift Box, TY=Toy, BK=Book, GM=Game, CL=Clothing, AC=Accessory)"
+          },
+          {
+            name: "sortBy",
+            in: "query",
+            required: false,
+            schema: {
+              type: "string",
+              enum: ["price-asc", "price-desc", "rating-desc", "newest", "featured"],
+              default: "featured"
+            },
+            description: "Sort by criteria (price ascending, price descending, rating descending, newest, or featured)"
           }
         ],
         responses: {
@@ -181,8 +224,17 @@ const spec = {
             content: {
               "application/json": {
                 schema: {
-                  type: "array",
-                  items: { $ref: "#/components/schemas/KidsGiftBoxCard" }
+                  type: "object",
+                  properties: {
+                    items: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/KidsGiftBoxCard" }
+                    },
+                    page: { type: "integer" },
+                    pageSize: { type: "integer" },
+                    total: { type: "integer" },
+                    totalPages: { type: "integer" }
+                  }
                 }
               }
             }
